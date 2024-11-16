@@ -1,0 +1,84 @@
+1.Write a procedure increase_salary that accepts a department name as a parameter and increases the salary of all employees in that department by 10%.
+
+ CREATE PROCEDURE INC(DEID INT) BEGIN UPDATE EMP_57 SET BASIC=(BASIC+(0.1*BASIC)) WHERE DEPTID=DEID; END;//
+
+
+2.Write a procedure delete_employee that accepts an employee ID and deletes that employee's record from the employees table.
+
+CREATE PROCEDURE delete_employee (p_employee_id INT)
+BEGIN
+    DELETE FROM employees
+    WHERE id = p_employee_id;
+END;
+
+
+3.Write a procedure transfer_employee that accepts an employee ID and a department ID, and updates the employee’s department accordingly.
+
+
+CREATE PROCEDURE transfer_employee (p_employee_id INT, p_department_id INT)
+BEGIN
+    UPDATE employees
+    SET department_id = p_department_id
+    WHERE id = p_employee_id;
+END;
+
+
+4.Write a function get_annual_salary that accepts an employee ID and returns the annual salary by multiplying their monthly salary by 12.
+
+CREATE FUNCTION ANN_SAL(EID INT) RETURNS INT DETERMINISTIC BEGIN DECLARE ANNUAL INT; SELECT BASIC*12 INTO ANNUAL FROM EMP_57 WHERE ID=EID; RETURN ANNUAL; END;//
+
+5.Write a function that accepts an employee ID and returns true if id exists.False otherwise.
+
+CREATE FUNCTION FIND_ID(EID INT) RETURNS BOOLEAN DETERMINISTIC BEGIN DECLARE COUNT INT; SELECT COUNT(ID)INTO COUNT FROM EMP_57 WHERE ID=EID; IF(COUNT>0) THEN RETURN TRUE;ELSE RETURN FALSE;END IF; END;//
+
+6.Write a function highest_salary_in_department that accepts a department ID and returns the highest salary in that department.
+
+CREATE FUNCTION highest_salary_in_department (p_department_id INT)
+RETURNS INT DETERMINISTIC
+BEGIN
+DECLARE v_highest_salary INT;
+    SELECT MAX(salary) INTO v_highest_salary
+    FROM employees
+    WHERE department_id = p_department_id;
+    RETURN v_highest_salary;
+END;//
+
+7.Write a trigger that fires before an update on the employees table and prevents salary from being updated if it is less than 3000.
+
+CREATE TRIGGER SLA_3000 BEFORE UPDATE ON EMP_57 FOR EACH ROW BEGIN IF NEW.BASIC<3000 THEN
+SIGNAL SQLSTATE'45000' SET MESSAGE_TEXT ="CANNOT UPDATE";END IF; END;//
+
+8.Write a PL/SQL block that uses an explicit cursor employee_cursor to select and display all employees in a given department ID.
+
+CREATE PROCEDURE CUR_SAL1() 
+BEGIN DECLARE DONE INT DEFAULT 0; 
+DECLARE NAME1 VARCHAR(20); 
+DECLARE ID1 INT; 
+DECLARE CUR CURSOR FOR 
+SELECT ID,NAME FROM EMP_57;
+DECLARE EXIT HANDLER FOR NOT FOUND SET DONE=TRUE;  
+OPEN CUR; 
+WHILE DONE=0 DO 
+FETCH CUR INTO ID1,NAME1; 
+SELECT ID1,NAME1; 
+END WHILE; 
+CLOSE CUR; 
+END;//
+
+9.Write a PL/SQL block that uses a cursor to iterate through each department, calculate the average salary of employees.
+
+CREATE PROCEDURE DEP_AVG()
+    -> BEGIN
+    -> DECLARE DONE INT DEFAULT 0;
+    -> DECLARE A INT;
+    -> DECLARE B INT;
+    -> DECLARE CUR CURSOR FOR 
+    -> SELECT DEPTID,AVG(BASIC)FROM EMP_57 GROUP BY DEPTID;
+    -> DECLARE EXIT HANDLER FOR NOT FOUND SET DONE=TRUE;
+    -> OPEN CUR;
+    -> WHILE DONE=0 DO
+    -> FETCH CUR INTO A,B;
+    -> SELECT A AS DEPTID,B AS AVG_BASIC;
+    -> END WHILE;
+    -> CLOSE CUR;
+    -> END;//
